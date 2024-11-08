@@ -25,6 +25,12 @@ namespace CodeLearn.Core.Services
             _context = context;
         }
 
+        public void AddComment(CourseComment comment)
+        {
+            _context.CourseComments.Add(comment);
+            _context.SaveChanges();
+        }
+
         public int AddCourse(Course course,IFormFile imgCourse, IFormFile courseDemo)
         {
             course.CreateDate = DateTime.Now;
@@ -76,6 +82,33 @@ namespace CodeLearn.Core.Services
             return episode.EpisodeId;
         }
 
+        public void AddGroup(CourseGroup group)
+        {
+            _context.CourseGroups.Add(group);
+            _context.SaveChanges();
+        }
+
+        public void AddsVote(int userId, int courseId, bool vote)
+        {
+            var UserVote = _context.CourseVotes.FirstOrDefault(c => c.UserId == userId && c.CourseId == courseId);
+            if (UserVote != null)
+            {
+                UserVote.Vote = vote;
+            }
+            else
+            {
+                UserVote = new CourseVote()
+                {
+                    CourseId = courseId,
+                    UserId = userId,
+                    Vote = vote
+                };
+                _context.Add(UserVote);
+            }
+
+            _context.SaveChanges();
+        }
+
         public bool ChecExistFile(string fileName)
         {
             string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/CourseFiles", fileName);
@@ -104,6 +137,11 @@ namespace CodeLearn.Core.Services
         public List<CourseGroup> GetAllGroup()
         {
             return _context.CourseGroups.ToList();
+        }
+
+        public CourseGroup GetById(int groupId)
+        {
+            return _context.CourseGroups.Find(groupId);
         }
 
         public List<ShowCourseLIstItemViewModel> GetCourse(int pageId = 1, string filter = "", string getType = "all", string orderByType = "date",
@@ -199,6 +237,22 @@ namespace CodeLearn.Core.Services
             return _context.Courses.Find(courseId);
         }
 
+        public Tuple<List<CourseComment>, int> GetCourseComment(int courseId, int pageId = 1)
+        {
+            int take = 5;
+            int skip = (pageId - 1) * take;
+            int pageCount = _context.CourseComments.Where(c => !c.IsDelete && c.CourseId == courseId).Count() / take;
+
+            if ((pageCount % 2) != 0)
+            {
+                pageCount += 1;
+            }
+
+            return Tuple.Create(
+                _context.CourseComments.Include(c => c.User).Where(c => !c.IsDelete && c.CourseId == courseId).Skip(skip).Take(take)
+                    .OrderByDescending(c => c.CreateDate).ToList(), pageCount);
+        }
+
         public List<CourseEpisode> GetCourseEpisodes(int courseId)
         {
             return _context.CourseEpisodes.Where(e=>e.CourseId == courseId).ToList();
@@ -226,6 +280,14 @@ namespace CodeLearn.Core.Services
             
         }
 
+        public Tuple<int, int> GetCourseVotes(int courseId)
+        {
+            var votes = _context.CourseVotes.Where(v => v.CourseId == courseId).Select(v => v.Vote).ToList();
+
+            return Tuple.Create(votes.Count(c => c), votes.Count(c => !c));
+
+        }
+
         public CourseEpisode GetEpisodeById(int episodeId)
         {
             return _context.CourseEpisodes.Find(episodeId);
@@ -248,6 +310,24 @@ namespace CodeLearn.Core.Services
                 Value = s.LevelId.ToString(),
                 Text = s.LevelTitle
             }).ToList();
+        }
+
+        public List<ShowCourseLIstItemViewModel> GetPopularCourse()
+        {
+            return _context.Courses.Include(c => c.OrderDetails)
+                .Include(c => c.CourseEpisodes)
+                .Where(c => c.OrderDetails.Any())
+                .OrderByDescending(d => d.OrderDetails.Count)
+                .Take(8)
+                .Select(c => new ShowCourseLIstItemViewModel()
+                {
+                    CourseId = c.CourseId,
+                    ImageName = c.CourseImageName,
+                    Price = c.CoursePrice,
+                    Title = c.CourseTitle,
+                    CourseEpisodes = c.CourseEpisodes
+                })
+                .ToList();
         }
 
         public List<SelectListItem> GetStatues()
@@ -277,6 +357,11 @@ namespace CodeLearn.Core.Services
                     Value = u.UserId.ToString(),
                     Text = u.User.UserName
                 }).ToList();
+        }
+
+        public bool IsFree(int courseId)
+        {
+            return _context.Courses.Where(c => c.CourseId == courseId).Select(c => c.CoursePrice).First() == 0;
         }
 
         public void UpdateCourse(Course course, IFormFile imgCourse, IFormFile courseDemo)
@@ -331,6 +416,12 @@ namespace CodeLearn.Core.Services
             }
 
             _context.Courses.Update(course);
+            _context.SaveChanges();
+        }
+
+        public void UpdateGroup(CourseGroup @group)
+        {
+            _context.CourseGroups.Update(group);
             _context.SaveChanges();
         }
     }

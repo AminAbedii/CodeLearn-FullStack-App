@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CodeLearn.DataLayer.Entities.Course;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,6 @@ namespace CodeLearn.Core.DTOs.Course
         public string ImageName { get; set; }
         public int Price { get; set; }
         public TimeSpan TotalTime { get; set; }
-
+        public List<CourseEpisode> CourseEpisodes { get; set; }
     }
 }

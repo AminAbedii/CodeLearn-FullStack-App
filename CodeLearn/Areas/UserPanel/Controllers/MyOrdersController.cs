@@ -1,4 +1,5 @@
-﻿using CodeLearn.Core.Services.Interfaces;
+﻿using CodeLearn.Core.DTOs.Order;
+using CodeLearn.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,6 +32,22 @@ namespace CodeLearn.Web.Areas.UserPanel.Controllers
             }
 
             return View();
+        }
+
+        public IActionResult FinalyOrder(int id)
+        {
+            if (_orderService.FinalyOrder(User.Identity.Name, id))
+            {
+                return Redirect("/UserPanel/MyOrders/ShowOrder/" + id + "?finaly=true");
+            }
+
+            return BadRequest();
+        }
+
+        public IActionResult UseDiscount(int orderId, string code)
+        {
+            DiscountUseType type = _orderService.UseDiscount(orderId, code);
+            return Redirect("/UserPanel/MyOrders/ShowOrder/" + orderId + "?type=" + type.ToString());
         }
     }
 }

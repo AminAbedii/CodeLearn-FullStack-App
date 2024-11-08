@@ -23,6 +23,7 @@ namespace CodeLearn.DataLayer.Context
         public DbSet<Role> Roles { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
+        public DbSet<UserDiscountCode> UserDiscountCodes { get; set; }
         #endregion
 
         #region Wallet
@@ -41,12 +42,16 @@ namespace CodeLearn.DataLayer.Context
         public DbSet<CourseStatus> CourseStatuses { get; set; }
         public DbSet<Course> Courses { get; set; }
         public DbSet<CourseEpisode> CourseEpisodes { get; set; }
+        public DbSet<UserCourse> UserCourses { get; set; }
+        public DbSet<CourseComment> CourseComments { get; set; }
+        public DbSet<CourseVote> CourseVotes { get; set; }
         #endregion
 
         #region Order
 
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
+        public DbSet<Discount> Discounts { get; set; }
 
         #endregion
 

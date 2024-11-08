@@ -20,6 +20,12 @@ namespace CodeLearn.Core.Services.Interfaces
         List<SelectListItem> GetTeachers();
         List<SelectListItem> GetLevels();
         List<SelectListItem> GetStatues();
+
+
+
+        CourseGroup GetById(int groupId);
+        void AddGroup(CourseGroup group);
+        void UpdateGroup(CourseGroup group);
         #endregion
 
         #region Course
@@ -32,6 +38,10 @@ namespace CodeLearn.Core.Services.Interfaces
             string orderByType = "date", int startPrice = 0, int endPrice = 0, List<int> selectedGroups = null, int take=0);
 
         Course GetCourseForShow(int courseId);
+
+
+        List<ShowCourseLIstItemViewModel> GetPopularCourse();
+        bool IsFree(int courseId);
         #endregion
 
         #region Episode
@@ -40,6 +50,19 @@ namespace CodeLearn.Core.Services.Interfaces
         int AddEpisode(CourseEpisode episode, IFormFile episodeFile);
         CourseEpisode GetEpisodeById(int episodeId);
         void EditEpisode(CourseEpisode episode, IFormFile episodeFile);
+        #endregion
+
+        #region Comments
+        void AddComment(CourseComment comment);
+        Tuple<List<CourseComment>, int> GetCourseComment(int courseId, int pageId = 1);
+
+        #endregion
+
+        #region Course Vote
+
+        void AddsVote(int userId, int courseId, bool vote);
+        Tuple<int, int> GetCourseVotes(int courseId);
+
         #endregion
     }
 }
